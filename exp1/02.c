@@ -11,7 +11,7 @@ void createPerson(struct person *p);
 void printPerson(struct person *p);
 
 int main(){
-    int amount = 2;
+    int amount = 5;
     struct person persons[amount];
     for(int i=0; i<amount; i++){
         createPerson(&persons[i]);

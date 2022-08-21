@@ -11,11 +11,10 @@ void createPerson(struct person *p);
 void printPerson(struct person *p);
 
 int main(){
-    int amount = 2;
-    struct person foo;
-    struct person *bar;
-    createPerson(&foo);
-    // precisa alocar
+    struct person *fooPtr, foo;
+    fooPtr = &foo;
+    createPerson(fooPtr);
+    printPerson(&foo);
     return 0;
 }
 
