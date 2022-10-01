@@ -1,3 +1,10 @@
+/*
+    Grupo 25%
+        Membros:
+            Victor T. S. Marciano : 180131
+            Vinicius Ibanez Alves: 180023
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
