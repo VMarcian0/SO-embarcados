@@ -21,6 +21,7 @@ typedef struct node
     int pid;
     int frequency; // n=0 not repeating | n<0 repeating
     int priority;  // the grater the more important
+    int scheduled_time; // the time when the process should occur
     struct node *next;
 } node;
 
@@ -37,7 +38,7 @@ int getBufferSize(node **head)
     return counter + 1;
 }
 
-char *addInitialProcess(node **head, node **tail, pf function, int pid, int frequency, int priority)
+char *addInitialProcess(node **head, node **tail, pf function, int pid, int frequency, int priority, int scheduled_time)
 {
     printf("Adding Initial Process | PID:%d\n", pid);
     node *new_node;
@@ -48,13 +49,14 @@ char *addInitialProcess(node **head, node **tail, pf function, int pid, int freq
     new_node->next = NULL;
     new_node->frequency = frequency;
     new_node->priority = priority;
+    new_node->scheduled_time = scheduled_time;
     *head = new_node;
     *tail = new_node;
 
     return "SUCCESS";
 }
 
-char *addProcess(node **head, node **tail, pf function, int pid, int frequency, int priority)
+char *addProcess(node **head, node **tail, pf function, int pid, int frequency, int priority, int scheduled_time)
 {
 
     printf("Adding Process | PID:%d\n", pid);
@@ -74,6 +76,7 @@ char *addProcess(node **head, node **tail, pf function, int pid, int frequency, 
         current->next->Function = function;
         current->next->frequency = frequency;
         current->next->priority = priority;
+        current->next->scheduled_time = scheduled_time;
         current->next->next = NULL;
         return "SUCCESS";
     }
@@ -133,8 +136,31 @@ char *function5(void)
 void executeProcess(node **head, node **tail)
 {
     char *reschedule;
+    node **choosen_node, **current_node;
+    free(choosen_node);
+    free(current_node);
+    current_node = head;
+    choosen_node = head;
+    //compare scheduled time for each node
+    while(1){
+        printf("(*current_node)->scheduled_time = %d\n", (*current_node)->scheduled_time);
+        (*current_node)->scheduled_time -= 1;
+        printf("(*current_node)->scheduled_time = %d\n", (*current_node)->scheduled_time);
+        if((*current_node)->scheduled_time <= 0){
+            if ((*choosen_node)->priority < (*current_node)->priority){
+                choosen_node = current_node;
+            }
+            else if((*choosen_node)->scheduled_time * (*choosen_node)->priority < (*current_node)->scheduled_time * (*current_node)->priority){
+                choosen_node = current_node;
+            }
+        }
+        current_node = &((*current_node)->next);
+        if((*current_node)->next != NULL){
+            break;
+        }
+    }
     int frequency, priority;
-    pf function = removeProcess(head, &frequency, &priority);
+    pf function = removeProcess(choosen_node, &frequency, &priority);
     if (function != NULL)
     {
         reschedule = function();
@@ -142,7 +168,7 @@ void executeProcess(node **head, node **tail)
         {
             printf("FREQUENCY %i\tPRIORITY %i\n", frequency, priority);
             printf("Rescheduling Process\n");
-            addProcess(head, tail, function, rand() % 100, frequency, priority);
+            addProcess(head, tail, function, rand() % 100, frequency, priority, (*choosen_node)->frequency);
         }
     }
 }
@@ -159,11 +185,11 @@ int main()
     node *tail = NULL;
 
     // head = (node *) malloc(sizeof(node));
-    printf("Add Process: %s\n\n", addInitialProcess(&head, &tail, function1, 1, 0, 1));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function2, 2, 2, 2));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function3, 2, 3, 4));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function4, 4, 5, 1));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 1));
+    printf("Add Process: %s\n\n", addInitialProcess(&head, &tail, function1, 1, 0, 1, 10));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function2, 2, 2, 2, 2));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function3, 3, 3, 4, 4));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function4, 4, 5, 1, 5));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 2, 5));
 
     int pid = getBufferSize(&head);
     while (counter >= 0)
