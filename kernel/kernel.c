@@ -145,16 +145,25 @@ void executeProcess(node **head, node **tail)
     while(1){
         (*current_node)->scheduled_time -= 1;
         if((*current_node)->scheduled_time <= 0){
-            if ((*choosen_node)->priority < (*current_node)->priority){
+            if ((*choosen_node)->priority < (*current_node)->priority && (*choosen_node)->scheduled_time<=0){
+                printf("===========DISPUTA DE CPU============");
+                printf("------------------------------------------------------------------------\n");
+                printf("previous choosen_node address : %d\n", choosen_node);
+                printf("previous  (*choosen_node)->scheduled_time %d\n", (*choosen_node)->scheduled_time);
                 choosen_node = current_node;
+                printf("next choosen_node address : %d\n", choosen_node);
+                printf("next  (*choosen_node)->scheduled_time %d\n", (*choosen_node)->scheduled_time);
+                printf("------------------------------------------------------------------------\n");
             }
             else if((*choosen_node)->scheduled_time * (*choosen_node)->priority < (*current_node)->scheduled_time * (*current_node)->priority){
                 choosen_node = current_node;
             }
         }
         printf("\ncurrent_node address = %d\n", current_node);
-        current_node = &((*current_node)->next);
-        if((*current_node)->next == NULL){
+        if((*current_node)->next != NULL){
+            current_node = &((*current_node)->next);
+        }
+        else {
             break;
         }
     }
@@ -167,13 +176,15 @@ void executeProcess(node **head, node **tail)
         pf function = removeProcess(choosen_node, &frequency, &priority);
         if (function != NULL)
         {
-            reschedule = function();
-            if (strcmp(reschedule, "REPEAT") == 0)
-            {
-                printf("FREQUENCY %i\tPRIORITY %i\n", frequency, priority);
-                printf("Rescheduling Process\n");
-                addProcess(head, tail, function, rand() % 100, frequency, priority, (*choosen_node)->frequency);
-            }
+            /*
+                reschedule = function();
+                if (strcmp(reschedule, "REPEAT") == 0)
+                {
+                    printf("FREQUENCY %i\tPRIORITY %i\n", frequency, priority);
+                    printf("Rescheduling Process\n");
+                    addProcess(head, tail, function, rand() % 100, frequency, priority, (*choosen_node)->frequency);
+                }
+            */
         }
         printf("------------------------------------\n\n");
     }
@@ -191,11 +202,11 @@ int main()
     node *tail = NULL;
 
     // head = (node *) malloc(sizeof(node));
-    printf("Add Process: %s\n\n", addInitialProcess(&head, &tail, function1, 1, 0, 1, 10));
+    printf("Add Process: %s\n\n", addInitialProcess(&head, &tail, function1, 1, 5, 1, 1));
     printf("Add Process: %s\n\n", addProcess(&head, &tail, function2, 2, 2, 2, 2));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function3, 3, 3, 4, 4));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function4, 4, 5, 1, 6));
-    printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 2, 5));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function3, 3, 3, 4, 2));
+    //printf("Add Process: %s\n\n", addProcess(&head, &tail, function4, 4, 5, 1, 6));
+    //printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 2, 5));
 
     int pid = getBufferSize(&head);
     while (counter >= 0)
