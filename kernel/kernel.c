@@ -11,7 +11,7 @@
 #include <time.h>
 
 #define BUFFER_SIZE 10
-#define LOOP 0 // 1 if kernel should loop | 0 if should stop at 100 iteration
+#define LOOP 1 // 1 if kernel should loop | 0 if should stop at 100 iteration
 
 typedef char *(*pf)();
 
@@ -248,11 +248,11 @@ void executeProcess(node **head, node **tail)
         if (function != NULL)
         {
             reschedule = function();
-            if (strcmp(reschedule, "REPEAT") == 0)
+            if (frequency > 0)
             {
                 //printf("FREQUENCY %i\tPRIORITY %i\n", frequency, priority);
                 //printf("Rescheduling Process\n");
-                addProcess(head, tail, function, rand() % 100, frequency, priority, (*choosen_node)->frequency);
+                addProcess(head, tail, function, rand(), frequency, priority, (*choosen_node)->frequency);
             }
         }
         printf("------------------------------------\n\n");
@@ -275,7 +275,7 @@ int main()
     printf("Add Process: %s\n\n", addProcess(&head, &tail, function2, 2, 2, 2, 1));
     printf("Add Process: %s\n\n", addProcess(&head, &tail, function3, 3, 3, 4, 2));
     printf("Add Process: %s\n\n", addProcess(&head, &tail, function4, 4, 5, 1, 6));
-    // printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 2, 5));
+    printf("Add Process: %s\n\n", addProcess(&head, &tail, function5, 5, 5, 2, 5));
 
     int pid = getBufferSize(&head);
     while (counter >= 0)
