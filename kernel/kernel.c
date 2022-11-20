@@ -82,24 +82,43 @@ char *addProcess(node **head, node **tail, pf function, int pid, int frequency, 
     }
 }
 
-pf removeProcess(node **head, int* frequency, int* priority)
+pf removeProcess(node **node_to_be_removed, node **head, int* frequency, int* priority)
 {
-    printf("Removing process | PID:%d\n", (*head)->pid);
+    //TODO considerar remoção no meio
+    printf("Removing process | PID:%d\n", (*node_to_be_removed)->pid);
     pf function = NULL;
-    node *next_node = NULL;
-
-    if (*head == NULL)
+    node **next_node, **previous_node, **current_node;
+    free(next_node);
+    free(previous_node);
+    free(current_node);
+    current_node = head;
+    if (*node_to_be_removed == NULL)
     {
         return NULL;
     }
-
-    next_node = (*head)->next;
-    function = (*head)->Function;
-    *frequency = (*head)->frequency;
-    *priority = (*head)->priority;
-    free(*head);
-    *head = next_node;
-
+    while(1){
+        if ((*current_node)->pid == (*node_to_be_removed)->pid){
+            if((*current_node)->pid == (*head)->pid){
+                head = &((*head)->next);
+            }
+            else{
+                (*previous_node)->next = (*current_node)->next;
+            }
+            break;
+        }
+        //* ERRO AQUI - Não está caindo aqui por algum motivo
+        if((*current_node)->next == NULL){
+            printf("ERROR\nPROCESS NOT FOUND\n");
+            exit(-13);
+        }
+        previous_node = current_node;
+        current_node =  &((*current_node)->next);
+    }
+    //next_node = (*node_to_be_removed)->next;
+    function = (*node_to_be_removed)->Function;
+    *frequency = (*node_to_be_removed)->frequency;
+    *priority = (*node_to_be_removed)->priority;
+    //free(*node_to_be_removed);
     return function;
 }
 
@@ -145,15 +164,9 @@ void executeProcess(node **head, node **tail)
     while(1){
         (*current_node)->scheduled_time -= 1;
         if((*current_node)->scheduled_time <= 0){
+            //* CPU DISPUTE
             if ((*choosen_node)->priority < (*current_node)->priority && (*choosen_node)->scheduled_time<=0){
-                printf("===========DISPUTA DE CPU============");
-                printf("------------------------------------------------------------------------\n");
-                printf("previous choosen_node address : %d\n", choosen_node);
-                printf("previous  (*choosen_node)->scheduled_time %d\n", (*choosen_node)->scheduled_time);
                 choosen_node = current_node;
-                printf("next choosen_node address : %d\n", choosen_node);
-                printf("next  (*choosen_node)->scheduled_time %d\n", (*choosen_node)->scheduled_time);
-                printf("------------------------------------------------------------------------\n");
             }
             else if((*choosen_node)->scheduled_time * (*choosen_node)->priority < (*current_node)->scheduled_time * (*current_node)->priority){
                 choosen_node = current_node;
@@ -173,7 +186,7 @@ void executeProcess(node **head, node **tail)
         printf("choosen_node address : %d\n", choosen_node);
         printf("(*choosen_node)->scheduled_time %d\n", (*choosen_node)->scheduled_time);
         printf("------------------------------------------------------------------------\n");
-        pf function = removeProcess(choosen_node, &frequency, &priority);
+        pf function = removeProcess(choosen_node, head, &frequency, &priority);
         if (function != NULL)
         {
             /*
